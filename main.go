@@ -1,5 +1,8 @@
 package main
 
+import "fmt"
+
 func main() {
-	generate()
+	sudoku := newSudoku()
+	fmt.Println(sudoku)
 }
