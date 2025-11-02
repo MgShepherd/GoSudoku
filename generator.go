@@ -12,13 +12,26 @@ type Sudoku struct {
 }
 
 func newSudoku() *Sudoku {
-	grid := make([][]int, GRID_SIZE*GRID_SIZE)
-	for i := range grid {
-		grid[i] = make([]int, GRID_SIZE*GRID_SIZE)
-	}
-	grid[2][2] = 4
-	grid[4][4] = 9
+	//	grid := make([][]int, GRID_SIZE*GRID_SIZE)
+	//	for i := range grid {
+	//		grid[i] = make([]int, GRID_SIZE*GRID_SIZE)
+	//	}
+	grid := generateFixedGrid()
 	return &Sudoku{grid}
+}
+
+func generateFixedGrid() [][]int {
+	return [][]int{
+		{0, 0, 0, 8, 3, 0, 0, 5, 7},
+		{0, 0, 8, 5, 0, 0, 6, 0, 0},
+		{1, 3, 0, 0, 0, 2, 0, 8, 0},
+		{8, 0, 2, 3, 9, 0, 7, 0, 0},
+		{6, 0, 0, 1, 0, 0, 0, 3, 2},
+		{0, 5, 7, 2, 0, 4, 0, 9, 0},
+		{0, 6, 0, 4, 1, 0, 3, 7, 0},
+		{0, 7, 3, 9, 0, 8, 0, 6, 0},
+		{0, 0, 0, 7, 6, 0, 4, 0, 0},
+	}
 }
 
 func (s *Sudoku) String() string {
