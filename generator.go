@@ -2,22 +2,46 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"strings"
 )
 
 const GRID_SIZE = 3
+const MIN_CLUES = 25
+const NUM_SQUARES = GRID_SIZE*GRID_SIZE
 
 type Sudoku struct {
 	grid [][]int
 }
 
 func newSudoku() *Sudoku {
-	//	grid := make([][]int, GRID_SIZE*GRID_SIZE)
-	//	for i := range grid {
-	//		grid[i] = make([]int, GRID_SIZE*GRID_SIZE)
-	//	}
-	grid := generateFixedGrid()
+	grid := make([][]int, NUM_SQUARES)
+	for i := range grid {
+		grid[i] = make([]int, NUM_SQUARES)
+	}
+
+
 	return &Sudoku{grid}
+}
+
+func (s *Sudoku) generateRandomGrid() error {
+	numClues := 0
+	for numClues < MIN_CLUES {
+		x, y := rand.IntN(NUM_SQUARES), rand.IntN(NUM_SQUARES)
+		if s.grid[y][x] != 0 {
+			continue
+		}
+		potentialValues := s.getPotentialValues(x, y)
+
+		if len(potentialValues) == 0 {
+			return fmt.Errorf("Generated sudoku has no valid solutions")
+		}
+
+		s.grid[y][x] = potentialValues[rand.IntN(len(potentialValues))]
+		numClues += 1
+	}
+
+	return nil
 }
 
 func generateFixedGrid() [][]int {

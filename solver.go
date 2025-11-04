@@ -7,41 +7,39 @@ import (
 
 const MAX_VALUE = 9
 
-func (s *Sudoku) Solve() bool {
+func (s *Sudoku) Solve() int {
 	startX, startY, foundUnfilled := s.getNextUnfilledSquare(-1, 0)
 	if !foundUnfilled {
-		return true
+		return 1
 	}
 	return s.solveFromSquare(startX, startY)
 }
 
-func (s *Sudoku) solveFromSquare(x, y int) bool {
+func (s *Sudoku) solveFromSquare(x, y int) int {
 	potentialValues := s.getPotentialValues(x, y)
 
+	numSolutions := 0
 	if len(potentialValues) == 0 {
-		return false
+		return numSolutions
 	}
 
 	newX, newY, foundUnfilled := s.getNextUnfilledSquare(x, y)
-	solved := !foundUnfilled
+	if !foundUnfilled {
+		numSolutions++
+	}
 
 	for i := range potentialValues {
 		s.grid[y][x] = potentialValues[i]
 
 		if foundUnfilled {
-			solved = s.solveFromSquare(newX, newY)
-			if solved {
-				return true
-			}
+			numSolutions += s.solveFromSquare(newX, newY)
 		}
 
 	}
 
-	if !solved {
-		s.grid[y][x] = 0
-	}
-	
-	return solved
+	s.grid[y][x] = 0
+		
+	return numSolutions
 }
 
 func (s *Sudoku) getPotentialValues(x, y int) []int {
