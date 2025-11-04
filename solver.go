@@ -1,44 +1,47 @@
 package main
 
 import (
-	"fmt"
 	"maps"
-	"os"
 	"slices"
 )
 
 const MAX_VALUE = 9
 
 func (s *Sudoku) Solve() bool {
-	startX, startY, foundUnfilled := s.getNextUnfilledSquare(0, 0)
+	startX, startY, foundUnfilled := s.getNextUnfilledSquare(-1, 0)
 	if !foundUnfilled {
 		return true
 	}
-	solved, err := s.solveFromSquare(startX, startY)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "[ERROR] Unable to solve Sudoku: %s\n", err)
-		return false
-	}
-	return solved
+	return s.solveFromSquare(startX, startY)
 }
 
-func (s *Sudoku) solveFromSquare(x, y int) (bool, error) {
+func (s *Sudoku) solveFromSquare(x, y int) bool {
 	potentialValues := s.getPotentialValues(x, y)
 
 	if len(potentialValues) == 0 {
-		return false, fmt.Errorf("No potential options at location X: %d, Y: %d", x, y)
+		return false
 	}
 
-	s.grid[y][x] = potentialValues[0]
 	newX, newY, foundUnfilled := s.getNextUnfilledSquare(x, y)
-	if !foundUnfilled {
-		return true, nil
+	solved := !foundUnfilled
+
+	for i := range potentialValues {
+		s.grid[y][x] = potentialValues[i]
+
+		if foundUnfilled {
+			solved = s.solveFromSquare(newX, newY)
+			if solved {
+				return true
+			}
+		}
+
 	}
-	solved, err := s.solveFromSquare(newX, newY)
-	if err != nil {
-		return false, err
+
+	if !solved {
+		s.grid[y][x] = 0
 	}
-	return solved, nil
+	
+	return solved
 }
 
 func (s *Sudoku) getPotentialValues(x, y int) []int {
@@ -58,12 +61,12 @@ func (s *Sudoku) getPotentialValues(x, y int) []int {
 
 func (s *Sudoku) getNextUnfilledSquare(startX, startY int) (int, int, bool) {
 	for y := startY; y < len(s.grid); y++ {
-		for x := startX; x < len(s.grid[y]); x++ {
+		for x := startX + 1; x < len(s.grid[y]); x++ {
 			if s.grid[y][x] == 0 {
 				return x, y, true
 			}
 		}
-		startX = 0
+		startX = -1
 	}
 	return -1, -1, false
 }
