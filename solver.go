@@ -38,7 +38,7 @@ func (s *Sudoku) solveFromSquare(x, y int) int {
 	}
 
 	s.grid[y][x] = 0
-		
+
 	return numSolutions
 }
 

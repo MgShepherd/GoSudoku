@@ -7,7 +7,7 @@ import (
 )
 
 const GRID_SIZE = 3
-const NUM_SQUARES = GRID_SIZE*GRID_SIZE
+const NUM_SQUARES = GRID_SIZE * GRID_SIZE
 
 type Sudoku struct {
 	grid [][]int
@@ -28,17 +28,17 @@ func (s *Sudoku) Generate() {
 	s.generateBox(1, 1)
 	s.generateBox(2, 2)
 
-	s.generateConstrained(GRID_SIZE, 0, (NUM_SQUARES*NUM_SQUARES) - (GRID_SIZE*NUM_SQUARES))
+	s.generateConstrained(GRID_SIZE, 0, (NUM_SQUARES*NUM_SQUARES)-(GRID_SIZE*NUM_SQUARES))
 
 	s.removeClues()
 }
 
 func (s *Sudoku) generateBox(boxX, boxY int) {
-	remainingOptions := sliceFromRange(1, 9) 
+	remainingOptions := sliceFromRange(1, 9)
 	numRemaining := len(remainingOptions)
 
-	for y := boxY*GRID_SIZE; y < (boxY*GRID_SIZE)+GRID_SIZE; y++ {
-		for x := boxX*GRID_SIZE; x < (boxX*GRID_SIZE)+GRID_SIZE; x++ {
+	for y := boxY * GRID_SIZE; y < (boxY*GRID_SIZE)+GRID_SIZE; y++ {
+		for x := boxX * GRID_SIZE; x < (boxX*GRID_SIZE)+GRID_SIZE; x++ {
 			randIdx := rand.IntN(numRemaining)
 			s.grid[y][x] = remainingOptions[randIdx]
 			numRemaining--
@@ -54,7 +54,7 @@ func (s *Sudoku) generateConstrained(x, y, remaining int) bool {
 	}
 
 	potentialValues := s.getPotentialValues(x, y)
-	
+
 	if len(potentialValues) == 0 {
 		return false
 	}
@@ -66,10 +66,12 @@ func (s *Sudoku) generateConstrained(x, y, remaining int) bool {
 
 	success := false
 	for _, el := range potentialValues {
-		s.grid[y][x] = el	
+		s.grid[y][x] = el
 		nextX, nextY := getNextPos(x, y)
-		success = s.generateConstrained(nextX, nextY, remaining - 1) 
-		if success { break }
+		success = s.generateConstrained(nextX, nextY, remaining-1)
+		if success {
+			break
+		}
 	}
 
 	if !success {
@@ -96,7 +98,7 @@ func (s *Sudoku) removeClues() {
 }
 
 func getNextPos(currentX, currentY int) (int, int) {
-	if currentX == NUM_SQUARES - 1 {
+	if currentX == NUM_SQUARES-1 {
 		return 0, currentY + 1
 	}
 	return currentX + 1, currentY
