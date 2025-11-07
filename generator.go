@@ -7,7 +7,6 @@ import (
 )
 
 const GRID_SIZE = 3
-const MIN_CLUES = 25
 const NUM_SQUARES = GRID_SIZE*GRID_SIZE
 
 type Sudoku struct {
@@ -20,42 +19,68 @@ func newSudoku() *Sudoku {
 		grid[i] = make([]int, NUM_SQUARES)
 	}
 
-
 	return &Sudoku{grid}
 }
 
-func (s *Sudoku) generateRandomGrid() error {
-	numClues := 0
-	for numClues < MIN_CLUES {
-		x, y := rand.IntN(NUM_SQUARES), rand.IntN(NUM_SQUARES)
-		if s.grid[y][x] != 0 {
-			continue
-		}
-		potentialValues := s.getPotentialValues(x, y)
+func (s *Sudoku) Generate() {
+	// All diagonal boxes are independant so generate these first
+	s.generateBox(0, 0)
+	s.generateBox(1, 1)
+	s.generateBox(2, 2)
 
-		if len(potentialValues) == 0 {
-			return fmt.Errorf("Generated sudoku has no valid solutions")
-		}
-
-		s.grid[y][x] = potentialValues[rand.IntN(len(potentialValues))]
-		numClues += 1
-	}
-
-	return nil
+	s.generateConstrained(GRID_SIZE, 0, (NUM_SQUARES*NUM_SQUARES) - (GRID_SIZE*NUM_SQUARES))
 }
 
-func generateFixedGrid() [][]int {
-	return [][]int{
-		{0, 0, 0, 8, 3, 0, 0, 5, 7},
-		{0, 0, 8, 5, 0, 0, 6, 0, 0},
-		{1, 3, 0, 0, 0, 2, 0, 8, 0},
-		{8, 0, 2, 3, 9, 0, 7, 0, 0},
-		{6, 0, 0, 1, 0, 0, 0, 3, 2},
-		{0, 5, 7, 2, 0, 4, 0, 9, 0},
-		{0, 6, 0, 4, 1, 0, 3, 7, 0},
-		{0, 7, 3, 9, 0, 8, 0, 6, 0},
-		{0, 0, 0, 7, 6, 0, 4, 0, 0},
+func (s *Sudoku) generateBox(boxX, boxY int) {
+	remainingOptions := sliceFromRange(1, 9) 
+	numRemaining := len(remainingOptions)
+
+	for y := boxY*GRID_SIZE; y < (boxY*GRID_SIZE)+GRID_SIZE; y++ {
+		for x := boxX*GRID_SIZE; x < (boxX*GRID_SIZE)+GRID_SIZE; x++ {
+			randIdx := rand.IntN(numRemaining)
+			s.grid[y][x] = remainingOptions[randIdx]
+			numRemaining--
+			remainingOptions[randIdx] = remainingOptions[numRemaining]
+		}
 	}
+}
+
+func (s *Sudoku) generateConstrained(x, y, remaining int) bool {
+	if s.grid[y][x] != 0 {
+		nextX, nextY := getNextPos(x, y)
+		return s.generateConstrained(nextX, nextY, remaining)
+	}
+
+	potentialValues := s.getPotentialValues(x, y)
+	
+	if len(potentialValues) == 0 {
+		return false
+	}
+
+	if remaining <= 1 {
+		s.grid[y][x] = potentialValues[0]
+		return true
+	}
+
+	success := false
+	for _, el := range potentialValues {
+		s.grid[y][x] = el	
+		nextX, nextY := getNextPos(x, y)
+		success = s.generateConstrained(nextX, nextY, remaining - 1) 
+		if success { break }
+	}
+
+	if !success {
+		s.grid[y][x] = 0
+	}
+	return success
+}
+
+func getNextPos(currentX, currentY int) (int, int) {
+	if currentX == NUM_SQUARES - 1 {
+		return 0, currentY + 1
+	}
+	return currentX + 1, currentY
 }
 
 func (s *Sudoku) String() string {
