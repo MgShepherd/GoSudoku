@@ -29,6 +29,8 @@ func (s *Sudoku) Generate() {
 	s.generateBox(2, 2)
 
 	s.generateConstrained(GRID_SIZE, 0, (NUM_SQUARES*NUM_SQUARES) - (GRID_SIZE*NUM_SQUARES))
+
+	s.removeClues()
 }
 
 func (s *Sudoku) generateBox(boxX, boxY int) {
@@ -74,6 +76,23 @@ func (s *Sudoku) generateConstrained(x, y, remaining int) bool {
 		s.grid[y][x] = 0
 	}
 	return success
+}
+
+func (s *Sudoku) removeClues() {
+	x, y := rand.IntN(NUM_SQUARES), rand.IntN(NUM_SQUARES)
+
+	for s.grid[y][x] == 0 {
+		x, y = rand.IntN(NUM_SQUARES), rand.IntN(NUM_SQUARES)
+	}
+
+	initialVal := s.grid[y][x]
+	s.grid[y][x] = 0
+
+	if s.Solve() > 1 {
+		s.grid[y][x] = initialVal
+		return
+	}
+	s.removeClues()
 }
 
 func getNextPos(currentX, currentY int) (int, int) {
