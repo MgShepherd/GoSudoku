@@ -13,16 +13,13 @@ type Sudoku struct {
 	grid [][]int
 }
 
-func newSudoku() *Sudoku {
+func GenerateSudoku() *Sudoku {
 	grid := make([][]int, NUM_SQUARES)
 	for i := range grid {
 		grid[i] = make([]int, NUM_SQUARES)
 	}
+	s := Sudoku{grid}
 
-	return &Sudoku{grid}
-}
-
-func (s *Sudoku) Generate() {
 	// All diagonal boxes are independant so generate these first
 	s.generateBox(0, 0)
 	s.generateBox(1, 1)
@@ -31,6 +28,7 @@ func (s *Sudoku) Generate() {
 	s.generateConstrained(GRID_SIZE, 0, (NUM_SQUARES*NUM_SQUARES)-(GRID_SIZE*NUM_SQUARES))
 
 	s.removeClues()
+	return &s
 }
 
 func (s *Sudoku) generateBox(boxX, boxY int) {
@@ -90,7 +88,7 @@ func (s *Sudoku) removeClues() {
 	initialVal := s.grid[y][x]
 	s.grid[y][x] = 0
 
-	if s.Solve() > 1 {
+	if s.getNumSolutions() > 1 {
 		s.grid[y][x] = initialVal
 		return
 	}
