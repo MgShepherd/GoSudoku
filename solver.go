@@ -4,21 +4,38 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"sync"
 )
 
 const MAX_VALUE = 9
 
-func SolveSudokus(numSudokus int) error {
-	for i := range numSudokus {
-		s := GenerateSudoku()
-		fmt.Printf("Puzzle %d:\n%s\n", i+1, s)
-		err := s.solve()
-		if err != nil {
-			return err
-		}
-		fmt.Printf("Solution: %s\n", s)
+func SolveSudokus(args *CmdArgs) {
+	if args.parallel {
+		solveParallel(args.numSudokus)
+	} else {
+		solveSequential(args.numSudokus)
 	}
-	return nil
+}
+
+func solveParallel(numSudokus int) {
+	var waitGroup sync.WaitGroup
+	for i := range numSudokus {
+		waitGroup.Go(func() { solveSingle(i) })
+	}
+	waitGroup.Wait()
+}
+
+func solveSequential(numSudokus int) {
+	for i := range numSudokus {
+		solveSingle(i)
+	}
+}
+
+func solveSingle(i int) {
+	s := GenerateSudoku()
+	fmt.Printf("Puzzle %d:\n%s\n", i+1, s)
+	s.solve()
+	fmt.Printf("Solution: %s\n", s)
 }
 
 func (s *Sudoku) solve() error {
