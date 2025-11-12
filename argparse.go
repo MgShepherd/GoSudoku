@@ -5,16 +5,19 @@ import (
 	"fmt"
 )
 
-const MODE_USAGE = "Mode - 0 to generate, 1 to solve"
+const MODE_USAGE = "Mode - 0 to generate, 1 to output puzzles with solutions, 2 to interactively solve a generated puzzle"
 const NUM_SUDOKUS_USAGE = "Number of sudokus to perform selected operation on (maximum 100)"
 const PARALLEL_USAGE = "Whether to perform operations in parallel - does not apply to interactive mode"
 const MAX_SUDOKUS = 1000
+
+const NUM_MODES = 3
 
 type Mode int
 
 const (
 	ModeGenerate Mode = iota
 	ModeSolve
+	ModeInteractive
 )
 
 type CmdArgs struct {
@@ -30,7 +33,7 @@ func parseCmdArgs() (CmdArgs, error) {
 
 	flag.Parse()
 
-	if *modePtr < 0 || *modePtr > 1 {
+	if *modePtr < 0 || *modePtr >= NUM_MODES {
 		return CmdArgs{}, fmt.Errorf("[ERROR]: Invalid mode argument provided\nMode Usage: %s", MODE_USAGE)
 	}
 

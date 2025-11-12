@@ -38,6 +38,17 @@ func solveSingle(i int) {
 	fmt.Printf("Solution: %s\n", s)
 }
 
+func (s *Sudoku) isSolved() bool {
+	for y := range len(s.grid) {
+		for x := range len(s.grid[y]) {
+			if s.grid[y][x] == 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (s *Sudoku) solve() error {
 	startX, startY, foundUnfilled := s.getNextUnfilledSquare(-1, 0)
 	if !foundUnfilled {
