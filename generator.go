@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"math/rand/v2"
+	"os"
 	"strings"
+	"sync"
 )
 
 const GRID_SIZE = 3
@@ -11,6 +13,29 @@ const NUM_SQUARES = GRID_SIZE * GRID_SIZE
 
 type Sudoku struct {
 	grid [][]int
+}
+
+func GenerateSudokus(args *CmdArgs, f *os.File) {
+	if args.parallel {
+		generateParallel(args.numSudokus, f)
+	} else {
+		generateSequential(args.numSudokus, f)
+	}
+}
+
+func generateParallel(numSudokus int, f *os.File) {
+	var waitGroup sync.WaitGroup
+	for range numSudokus {
+		waitGroup.Go(func() { s := GenerateSudoku(); f.WriteString(s.String()) })
+	}
+	waitGroup.Wait()
+}
+
+func generateSequential(numSudokus int, f *os.File) {
+	for range numSudokus {
+		s := GenerateSudoku()
+		f.WriteString(s.String())
+	}
 }
 
 func GenerateSudoku() *Sudoku {

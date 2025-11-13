@@ -3,39 +3,40 @@ package main
 import (
 	"fmt"
 	"maps"
+	"os"
 	"slices"
 	"sync"
 )
 
 const MAX_VALUE = 9
 
-func SolveSudokus(args *CmdArgs) {
+func SolveSudokus(args *CmdArgs, f *os.File) {
 	if args.parallel {
-		solveParallel(args.numSudokus)
+		solveParallel(args.numSudokus, f)
 	} else {
-		solveSequential(args.numSudokus)
+		solveSequential(args.numSudokus, f)
 	}
 }
 
-func solveParallel(numSudokus int) {
+func solveParallel(numSudokus int, f *os.File) {
 	var waitGroup sync.WaitGroup
-	for i := range numSudokus {
-		waitGroup.Go(func() { solveSingle(i) })
+	for range numSudokus {
+		waitGroup.Go(func() { solveSingle(f) })
 	}
 	waitGroup.Wait()
 }
 
-func solveSequential(numSudokus int) {
-	for i := range numSudokus {
-		solveSingle(i)
+func solveSequential(numSudokus int, f *os.File) {
+	for range numSudokus {
+		solveSingle(f)
 	}
 }
 
-func solveSingle(i int) {
+func solveSingle(f *os.File) {
 	s := GenerateSudoku()
-	fmt.Printf("Puzzle %d:\n%s\n", i+1, s)
+	fmt.Fprintf(f, "Puzzle:\n%s\n", s)
 	s.solve()
-	fmt.Printf("Solution: %s\n", s)
+	fmt.Fprintf(f, "Solution: %s\n", s)
 }
 
 func (s *Sudoku) isSolved() bool {

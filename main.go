@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -13,11 +14,19 @@ func main() {
 		return
 	}
 
+	var f *os.File
+	f, err = os.Create(args.fileName)
+	if err != nil {
+		fmt.Printf("[ERROR] Could not open file: %s\n", err)
+		return
+	}
+	defer f.Close()
+
 	switch args.mode {
 	case ModeGenerate:
-		fallthrough
+		GenerateSudokus(&args, f)
 	case ModeSolve:
-		SolveSudokus(&args)
+		SolveSudokus(&args, f)
 	case ModeInteractive:
 		SolveInteractive()
 	}

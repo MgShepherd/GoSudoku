@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 )
 
 const MODE_USAGE = "Mode - 0 to generate, 1 to output puzzles with solutions, 2 to interactively solve a generated puzzle"
@@ -24,12 +25,14 @@ type CmdArgs struct {
 	mode       Mode
 	numSudokus int
 	parallel   bool
+	fileName   string
 }
 
 func parseCmdArgs() (CmdArgs, error) {
 	modePtr := flag.Int("m", 0, MODE_USAGE)
 	numSudokusPtr := flag.Int("n", 1, NUM_SUDOKUS_USAGE)
 	parallelPtr := flag.Bool("p", false, PARALLEL_USAGE)
+	fileNamePtr := flag.String("f", os.Stdout.Name(), "Path to file to write output to")
 
 	flag.Parse()
 
@@ -45,5 +48,6 @@ func parseCmdArgs() (CmdArgs, error) {
 		mode:       Mode(*modePtr),
 		numSudokus: *numSudokusPtr,
 		parallel:   *parallelPtr,
+		fileName:   *fileNamePtr,
 	}, nil
 }
